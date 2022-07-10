@@ -43,7 +43,7 @@ if SERVER then
 
         local sType = type(xValue)
 
-        if not tNetworkCallbacks[sType] or not isfunction(tNetworkCallbacks[sType][1]) then 
+        if not tNetworkCallbacks[sType] or not isfunction(tNetworkCallbacks[sType].fcWrite) then 
             return false, Error(("[LocalNWVar] %s is not an valid LocalNWVar type"):format(sType))
         end
 
@@ -60,7 +60,7 @@ if SERVER then
         -- Update the var with the good network callback
         net.Start("LocalNWVar:Update")
             net.WriteString(sVarName)
-            tNetworkCallbacks[sType][1](xValue)
+            tNetworkCallbacks[sType].fcWrite(xValue)
         net.Send(self)
         
         -- Register the type to avoid registering every time the value has changed
@@ -91,9 +91,9 @@ else
             return false, Error(("[LocalNWVar] %s is not an valid LocalNWVar type"):format(sType))
         end
 
-        if not isfunction(tNetCallback[2]) then return end
+        if not isfunction(tNetCallback.fcRead) then return end
 
-        local xValue = tNetCallback[2]()
+        local xValue = tNetCallback.fcRead()
         if xValue == nil then
             return false, Error(("[LocalNWVar] An unknown error has occured while reading a %s"):format(sType))
         end
