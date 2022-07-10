@@ -8,7 +8,7 @@ A lot of beginners are using it anyway because it's easier. That is a bad behavi
 Anyway, this is not an issue anymore since LocalNWVars is out and you can use it exactly like NWVar but they are synchronized only with the player specified. 
 
 # Setup
-Just drag the file into your gamemode/addon and **include it by yourself** (it's a **shared** file).  
+Just drag the file **localnwvars.lua** into your gamemode/addon and **include it by yourself** (it's a **shared** file).  
 Once it's done, you can use it. Not that hard, heh?
 
 # Usage
