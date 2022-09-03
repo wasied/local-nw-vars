@@ -47,8 +47,11 @@ if SERVER then
             return false, Error(("[LocalNWVar] %s is not an valid LocalNWVar type"):format(sType))
         end
 
+        LocalNWVars.tTypes[self] = LocalNWVars.tTypes[self] or {}
+        LocalNWVars.tValues[self] = LocalNWVars.tValues[self] or {}
+
         -- Tell to the client that the network callback has changed for this var
-        if LocalNWVars.tTypes[sVarName] ~= sType then
+        if LocalNWVars.tTypes[self][sVarName] ~= sType then
 
             net.Start("LocalNWVar:RegisterType")
                 net.WriteString(sVarName)
@@ -64,8 +67,8 @@ if SERVER then
         net.Send(self)
         
         -- Register the type to avoid registering every time the value has changed
-        LocalNWVars.tTypes[sVarName] = sType
-        LocalNWVars.tValues[sVarName] = xValue
+        LocalNWVars.tTypes[self][sVarName] = sType
+        LocalNWVars.tValues[self][sVarName] = xValue
         hook.Run("OnLocalNWVarChanged", self, sVarName, xValue)
 
     end
@@ -112,8 +115,11 @@ function PLAYER:GetLocalNWVar(sVarName, xFallback)
 
     if not isstring(sVarName) then return xFallback end
 
-    if LocalNWVars.tValues[sVarName] ~= nil then
-        return LocalNWVars.tValues[sVarName]
+    local tValues = LocalNWVars.tValues
+    if SERVER then tValues = tValues[self] end
+
+    if tValues and tValues[sVarName] ~= nil then
+        return tValues[sVarName]
     end
 
     return xFallback
