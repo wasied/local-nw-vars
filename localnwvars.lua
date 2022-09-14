@@ -16,7 +16,7 @@ local tCallbacks = {
     },
     ["number"] = {
         fcWrite = function(i) net.WriteInt(i, 32) end, -- since we don't know what the value will be, use 32 bits by default
-        fcRead = function() net.ReadInt(i) end
+        fcRead = function() net.ReadInt(32) end
     },
     ["boolean"] = {
         fcWrite = function(b) net.WriteBool(b) end,
