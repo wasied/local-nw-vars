@@ -12,19 +12,19 @@ local PLAYER = FindMetaTable("Player")
 local tCallbacks = {
     ["string"] = {
         fcWrite = function(s) net.WriteString(s) end,
-        fcRead = function() net.ReadString() end
+        fcRead = function() return net.ReadString() end
     },
     ["number"] = {
         fcWrite = function(i) net.WriteInt(i, 32) end, -- since we don't know what the value will be, use 32 bits by default
-        fcRead = function() net.ReadInt(32) end
+        fcRead = function() return net.ReadInt(32) end
     },
     ["boolean"] = {
         fcWrite = function(b) net.WriteBool(b) end,
-        fcRead = function() net.ReadBool() end
+        fcRead = function() return net.ReadBool() end
     },
     ["table"] = { -- Please don't use it until you REALLY need it. Networked tables = bad.
         fcWrite = function(t) net.WriteTable(t) end,
-        fcRead = function() net.ReadTable() end
+        fcRead = function() return net.ReadTable() end
     }
 }
 
