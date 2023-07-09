@@ -102,7 +102,7 @@ else
         end
 
         LocalNWVars.tValues[sVarName] = xValue
-        hook.Run("OnLocalNWVarChanged", self, sVarName, xValue)
+        hook.Run("OnLocalNWVarChanged", sVarName, xValue)
 
     end)
 
