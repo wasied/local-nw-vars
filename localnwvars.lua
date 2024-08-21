@@ -22,9 +22,33 @@ local tCallbacks = {
         fcWrite = function(b) net.WriteBool(b) end,
         fcRead = function() return net.ReadBool() end
     },
-    ["table"] = { -- Please don't use it until you REALLY need it. Networked tables = bad.
+    ["table"] = {
         fcWrite = function(t) net.WriteTable(t) end,
         fcRead = function() return net.ReadTable() end
+    },
+    ["Vector"] = {
+        fcWrite = function(v) net.WriteVector(v) end,
+        fcRead = function() return net.ReadVector() end
+    },
+    ["Angle"] = {
+        fcWrite = function(a) net.WriteAngle(a) end,
+        fcRead = function() return net.ReadAngle() end
+    },
+    ["Entity"] = {
+        fcWrite = function(e) net.WriteEntity(e) end,
+        fcRead = function() return net.ReadEntity() end
+    },
+    ["Player"] = {
+        fcWrite = function(p) net.WritePlayer(p) end,
+        fcRead = function() return net.ReadPlayer() end
+    },
+    ["Vehicle"] = {
+        fcWrite = function(e) net.WriteEntity(e) end,
+        fcRead = function() return net.ReadEntity() end
+    },
+    ["nil"] = { -- Reset a variable
+        fcWrite = function() end,
+        fcRead = function() end
     }
 }
 
@@ -38,12 +62,14 @@ if SERVER then
     -- Set the value of a variable
     function PLAYER:SetLocalNWVar(sVarName, xValue)
 
-        if not isstring(sVarName) or xValue == nil then return end
         if not IsValid(self) then return end
 
-        local sType = type(xValue)
+        if not isstring(sVarName) then
+            return false, Error(("[LocalNWVar] %s is not an valid LocalNWVar name"):format(sVarName))
+        end
 
-        if not tCallbacks[sType] or not isfunction(tCallbacks[sType].fcWrite) then 
+        local sType = type(xValue)
+        if not tCallbacks[sType] or not isfunction(tCallbacks[sType].fcWrite) then
             return false, Error(("[LocalNWVar] %s is not an valid LocalNWVar type"):format(sType))
         end
 
@@ -57,7 +83,7 @@ if SERVER then
                 net.WriteString(sVarName)
                 net.WriteString(sType)
             net.Send(self)
-        
+
         end
 
         -- Update the var with the good network callback
@@ -65,10 +91,11 @@ if SERVER then
             net.WriteString(sVarName)
             tCallbacks[sType].fcWrite(xValue)
         net.Send(self)
-        
+
         -- Register the type to avoid registering every time the value has changed
-        LocalNWVars.tTypes[self][sVarName] = sType
+        LocalNWVars.tTypes[self][sVarName] = (sType ~= "nil" and sType or nil)
         LocalNWVars.tValues[self][sVarName] = xValue
+
         hook.Run("OnLocalNWVarChanged", self, sVarName, xValue)
 
     end
@@ -97,11 +124,12 @@ else
         if not isfunction(tNetCallback.fcRead) then return end
 
         local xValue = tNetCallback.fcRead()
+        LocalNWVars.tValues[sVarName] = xValue
+
         if xValue == nil then
-            return false, Error(("[LocalNWVar] An unknown error has occured while reading a %s"):format(sType))
+            LocalNWVars.tTypes[sVarName] = nil
         end
 
-        LocalNWVars.tValues[sVarName] = xValue
         hook.Run("OnLocalNWVarChanged", sVarName, xValue)
 
     end)
